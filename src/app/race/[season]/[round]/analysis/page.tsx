@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRaceResults, getRaceInfo } from "@/lib/jolpica";
 import {
@@ -17,6 +18,51 @@ import { getDictionary, type Dictionary } from "@/lib/i18n";
 import { localizeRaceName } from "@/lib/i18n/raceNames";
 import LapChart from "@/components/LapChart";
 import StintChart from "@/components/StintChart";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ season: string; round: string }>;
+}): Promise<Metadata> {
+  const { season, round } = await params;
+  if (
+    !/^\d{4}$/.test(season) ||
+    !/^\d{1,2}$/.test(round) ||
+    Number(season) < OPENF1_MIN_SEASON
+  ) {
+    return { title: "Analysis" };
+  }
+
+  const [{ locale }, race] = await Promise.all([
+    getDictionary(),
+    getRaceInfo(season, round),
+  ]);
+  if (!race) return { title: "Analysis" };
+
+  const name = localizeRaceName(race.raceName, race.Circuit.circuitId, locale);
+  const title =
+    locale === "zh" ? `${name} · 比赛分析` : `${name} · Session Analysis`;
+  const description =
+    locale === "zh"
+      ? `${season} ${name}圈速对比、配胎策略与赛控消息`
+      : `${season} ${name} lap times, tyre strategy, and race control`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/race/${season}/${round}/analysis` },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: `/race/${season}/${round}/analysis`,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  };
+}
 
 function Section({
   title,

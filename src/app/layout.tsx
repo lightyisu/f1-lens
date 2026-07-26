@@ -5,6 +5,12 @@ import "./globals.css";
 import { getDictionary } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import LangSwitch from "@/components/LangSwitch";
+import {
+  getSiteUrl,
+  SITE_DESCRIPTION,
+  SITE_DESCRIPTION_ZH,
+  SITE_NAME,
+} from "@/lib/seo";
 
 /** 可变宽度黑体，拉到 Expanded，接近附图那种扁宽数字（官方 F1 字体不对外授权） */
 const display = Archivo({
@@ -27,9 +33,57 @@ const mono = JetBrains_Mono({
   weight: ["400", "500", "700"],
 });
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "F1 Lens",
-  description: "F1 schedule, race results and session analysis",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: SITE_NAME,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "F1",
+    "Formula 1",
+    "F1 Lens",
+    "race results",
+    "qualifying",
+    "F1 schedule",
+    "lap times",
+    "tyre strategy",
+    "一级方程式",
+    "F1赛程",
+    "F1成绩",
+  ],
+  authors: [{ name: "lightyisu", url: "https://github.com/lightyisu" }],
+  creator: "lightyisu",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["zh_CN"],
+    url: siteUrl,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: "/",
+  },
+  category: "sports",
 };
 
 export default async function RootLayout({
@@ -76,6 +130,20 @@ export default async function RootLayout({
           <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-8 sm:py-10 flex-1">
             {children}
           </main>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: SITE_NAME,
+                url: siteUrl,
+                description: SITE_DESCRIPTION,
+                inLanguage: ["en", "zh-CN"],
+                alternateName: SITE_DESCRIPTION_ZH,
+              }),
+            }}
+          />
           <footer className="border-t border-border-soft py-6 px-4 sm:px-6">
             <p className="mx-auto max-w-5xl text-center text-[11px] sm:text-xs leading-relaxed text-muted">
               {t.footer}

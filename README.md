@@ -24,3 +24,12 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## Environment
+
+Optional:
+
+```bash
+# Canonical site URL for SEO (sitemap / Open Graph). On Vercel this is usually inferred.
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+```

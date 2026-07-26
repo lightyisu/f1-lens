@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   getQualifyingResults,
@@ -11,6 +12,46 @@ import { teamColor } from "@/lib/colors";
 import { getDictionary } from "@/lib/i18n";
 import { localizeRaceName } from "@/lib/i18n/raceNames";
 import ResultsTabs from "@/components/ResultsTabs";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ season: string; round: string }>;
+}): Promise<Metadata> {
+  const { season, round } = await params;
+  if (!/^\d{4}$/.test(season) || !/^\d{1,2}$/.test(round)) {
+    return { title: "Race" };
+  }
+
+  const [{ locale }, race] = await Promise.all([
+    getDictionary(),
+    getRaceInfo(season, round),
+  ]);
+  if (!race) return { title: "Race" };
+
+  const name = localizeRaceName(race.raceName, race.Circuit.circuitId, locale);
+  const title = `${name} · ${season} R${round.padStart(2, "0")}`;
+  const description =
+    locale === "zh"
+      ? `${season} ${name}正赛与排位成绩 · ${race.Circuit.circuitName}`
+      : `${season} ${name} race & qualifying results at ${race.Circuit.circuitName}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/race/${season}/${round}` },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: `/race/${season}/${round}`,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  };
+}
 
 export default async function RacePage({
   params,
