@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Archivo, JetBrains_Mono, Titillium_Web } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
 import { getDictionary } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/LocaleProvider";
@@ -98,15 +97,28 @@ export default async function RootLayout({
       lang={locale === "zh" ? "zh-CN" : "en"}
       className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="flex min-h-full min-h-dvh flex-col bg-[#eef2f6] font-sans">
         <LocaleProvider locale={locale}>
-          <header className="sticky top-0 z-20 border-b border-border-soft bg-white/85 backdrop-blur-xl">
-            <div className="mx-auto max-w-5xl px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
-              <Link href="/" className="group font-display text-2xl sm:text-3xl font-black tracking-tight">
-                <span className="text-ink">F1</span>{" "}
-                <span className="brand-outline-accent">Lens</span>
-              </Link>
-              <div className="flex items-center gap-3 sm:gap-4">
+          <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-6 sm:px-6 sm:py-8">
+            {children}
+          </main>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: SITE_NAME,
+                url: siteUrl,
+                description: SITE_DESCRIPTION,
+                inLanguage: ["en", "zh-CN"],
+                alternateName: SITE_DESCRIPTION_ZH,
+              }),
+            }}
+          />
+          <footer className="border-t border-black/[0.06] py-6 px-4 sm:px-6">
+            <div className="mx-auto flex max-w-6xl flex-col items-center gap-3">
+              <div className="flex items-center gap-4">
                 <LangSwitch />
                 <a
                   href="https://github.com/lightyisu/f1-lens"
@@ -125,29 +137,10 @@ export default async function RootLayout({
                   </svg>
                 </a>
               </div>
+              <p className="text-center text-[11px] sm:text-xs leading-relaxed text-muted">
+                {t.footer}
+              </p>
             </div>
-          </header>
-          <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-8 sm:py-10 flex-1">
-            {children}
-          </main>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                name: SITE_NAME,
-                url: siteUrl,
-                description: SITE_DESCRIPTION,
-                inLanguage: ["en", "zh-CN"],
-                alternateName: SITE_DESCRIPTION_ZH,
-              }),
-            }}
-          />
-          <footer className="border-t border-border-soft py-6 px-4 sm:px-6">
-            <p className="mx-auto max-w-5xl text-center text-[11px] sm:text-xs leading-relaxed text-muted">
-              {t.footer}
-            </p>
           </footer>
         </LocaleProvider>
       </body>

@@ -72,6 +72,19 @@ export interface Of1RaceControl {
   lap_number: number | null;
 }
 
+export interface Of1SessionResult {
+  position: number;
+  driver_number: number;
+  duration: number | null;
+  gap_to_leader: number | string | null;
+}
+
+export interface SessionFastest {
+  driverCode: string;
+  driverName: string;
+  teamColour: string | null;
+}
+
 /** OpenF1 请求失败时返回 null，由调用方降级处理 */
 async function ofetch<T>(path: string, revalidate = 86400): Promise<T | null> {
   try {
@@ -84,13 +97,13 @@ async function ofetch<T>(path: string, revalidate = 86400): Promise<T | null> {
 }
 
 /**
- * 通过赛季年份 + 正赛日期匹配 OpenF1 的正赛 session。
+ * 通过赛季年份 + 正赛日期匹配 OpenF1 的 meeting。
  * meetings 的 date_start 是周五练习赛，正赛在周日，取 5 天内最接近的一场。
  */
-export async function findRaceSession(
+async function findMeeting(
   season: string,
   raceDate: string
-): Promise<Of1Session | null> {
+): Promise<Of1Meeting | null> {
   if (Number(season) < OPENF1_MIN_SEASON) return null;
 
   const meetings = await ofetch<Of1Meeting[]>(`/meetings?year=${season}`);
@@ -108,11 +121,71 @@ export async function findRaceSession(
     }
   }
   if (!best || bestDiff > 5 * DAY) return null;
+  return best;
+}
+
+/** 匹配 OpenF1 session_name 到本站场次 key（fp1 / qualifying / race …） */
+export function openf1ToSessionKey(sessionName: string): string | null {
+  const n = sessionName.toLowerCase();
+  if (n === "practice 1") return "fp1";
+  if (n === "practice 2") return "fp2";
+  if (n === "practice 3") return "fp3";
+  if (n.includes("sprint qualifying") || n.includes("sprint shootout"))
+    return "sprintQualifying";
+  if (n === "sprint") return "sprint";
+  if (n === "qualifying") return "qualifying";
+  if (n === "race") return "race";
+  return null;
+}
+
+export async function findRaceSession(
+  season: string,
+  raceDate: string
+): Promise<Of1Session | null> {
+  const meeting = await findMeeting(season, raceDate);
+  if (!meeting) return null;
 
   const sessions = await ofetch<Of1Session[]>(
-    `/sessions?meeting_key=${best.meeting_key}&session_name=Race`
+    `/sessions?meeting_key=${meeting.meeting_key}&session_name=Race`
   );
   return sessions?.[0] ?? null;
+}
+
+export async function getMeetingSessions(
+  season: string,
+  raceDate: string
+): Promise<Of1Session[]> {
+  const meeting = await findMeeting(season, raceDate);
+  if (!meeting) return [];
+  return (
+    (await ofetch<Of1Session[]>(`/sessions?meeting_key=${meeting.meeting_key}`)) ??
+    []
+  );
+}
+
+/** 该场次最快（P1）车手；无成绩时返回 null */
+export async function getSessionFastest(
+  sessionKey: number
+): Promise<SessionFastest | null> {
+  const results = await ofetch<Of1SessionResult[]>(
+    `/session_result?session_key=${sessionKey}`,
+    600
+  );
+  const p1 = results?.find((r) => r.position === 1);
+  if (!p1) return null;
+
+  const drivers = await getDrivers(sessionKey);
+  const driver = drivers.find((d) => d.driver_number === p1.driver_number);
+  if (!driver?.name_acronym) return null;
+
+  const colour = driver.team_colour
+    ? `#${driver.team_colour.replace(/^#/, "")}`
+    : null;
+  return {
+    driverCode: driver.name_acronym.toUpperCase(),
+    driverName: driver.full_name,
+    teamColour: colour,
+  };
 }
 
 export async function getDrivers(sessionKey: number): Promise<Of1Driver[]> {

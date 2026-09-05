@@ -12,6 +12,8 @@ import { teamColor } from "@/lib/colors";
 import { getDictionary } from "@/lib/i18n";
 import { localizeRaceName } from "@/lib/i18n/raceNames";
 import ResultsTabs from "@/components/ResultsTabs";
+import Track3D from "@/components/Track3D";
+import { hasTrackSvg } from "@/components/TrackOutline";
 
 export async function generateMetadata({
   params,
@@ -173,6 +175,22 @@ export default async function RacePage({
           </div>
         )}
       </header>
+
+      {hasTrackSvg(race.Circuit.circuitId) && (
+        <section className="soft-card animate-fade-up overflow-hidden rounded-[1.75rem] bg-white">
+          <div className="flex items-center justify-between px-5 pt-4">
+            <span className="text-[13px] text-ink/50">
+              {t.track3d}
+            </span>
+            <span className="text-[11px] text-ink/30">
+              {t.track3dHint}
+            </span>
+          </div>
+          <div className="mx-4 mb-4 mt-3 h-64 overflow-hidden rounded-2xl bg-[#15151e] sm:h-80">
+            <Track3D circuitId={race.Circuit.circuitId} />
+          </div>
+        </section>
+      )}
 
       <div className="animate-fade-up-delay">
         <ResultsTabs

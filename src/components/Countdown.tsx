@@ -57,9 +57,11 @@ function TickValue({ value }: { value: string }) {
 export default function Countdown({
   targetIso,
   variant = "default",
+  className = "",
 }: {
   targetIso: string;
-  variant?: "default" | "hero";
+  variant?: "default" | "hero" | "compact";
+  className?: string;
 }) {
   const t = useT();
   const target = new Date(targetIso).getTime();
@@ -90,10 +92,32 @@ export default function Countdown({
                 }
               />
             </div>
-            <div className="font-display text-[10px] tracking-[0.22em] text-white/45 mt-1.5">
+            <div className="font-display text-[10px] tracking-[0.22em] text-muted mt-1.5">
               {c.label}
             </div>
           </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (variant === "compact") {
+    // 单行内联，颜色继承父元素
+    return (
+      <div
+        className={`flex flex-wrap items-baseline gap-x-2 gap-y-0.5 font-display text-lg sm:text-xl font-black tabular-nums ${className}`.trim()}
+      >
+        {cells.map((c) => (
+          <span key={c.label} className="inline-flex items-baseline">
+            <TickValue
+              value={
+                c.value === undefined ? "--" : String(c.value).padStart(2, "0")
+              }
+            />
+            <span className="ml-1 text-[10px] font-semibold tracking-[0.12em] opacity-60">
+              {c.label}
+            </span>
+          </span>
         ))}
       </div>
     );

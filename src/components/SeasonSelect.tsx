@@ -5,7 +5,13 @@ import { useT } from "./LocaleProvider";
 
 const FIRST_SEASON = 2010;
 
-export default function SeasonSelect({ season }: { season: string }) {
+export default function SeasonSelect({
+  season,
+  small = false,
+}: {
+  season: string;
+  small?: boolean;
+}) {
   const router = useRouter();
   const t = useT();
   const current = new Date().getFullYear();
@@ -16,11 +22,15 @@ export default function SeasonSelect({ season }: { season: string }) {
     <select
       value={season}
       onChange={(e) => router.push(`/?season=${e.target.value}`)}
-      className="panel rounded-xl px-4 py-2.5 text-sm font-semibold tracking-wide text-ink outline-none focus:border-accent cursor-pointer appearance-none pr-9"
+      className={`panel rounded-xl font-semibold tracking-wide text-ink outline-none focus:border-accent cursor-pointer appearance-none ${
+        small
+          ? "px-2.5 py-1.5 text-xs pr-7"
+          : "px-4 py-2.5 text-sm pr-9"
+      }`}
       style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%2371717a' stroke-width='1.5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E")`,
         backgroundRepeat: "no-repeat",
-        backgroundPosition: "right 12px center",
+        backgroundPosition: `right ${small ? "8px" : "12px"} center`,
         backgroundSize: "12px 8px",
       }}
       aria-label={t.selectSeason}

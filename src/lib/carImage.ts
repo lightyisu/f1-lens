@@ -23,6 +23,26 @@ export function hasCarBackground(season: string): boolean {
   return CAR_BG_SEASONS.has(season);
 }
 
+/** BoxBox 风格车队主题色（constructorId -> hex） */
+const TEAM_COLORS: Record<string, string> = {
+  red_bull: "#3671C6",
+  ferrari: "#FF2800",
+  mercedes: "#27F4D2",
+  mclaren: "#FF8000",
+  aston_martin: "#229971",
+  alpine: "#0093CC",
+  williams: "#64C4FF",
+  rb: "#6692FF",
+  sauber: "#52E252",
+  haas: "#B6BABD",
+  audi: "#00E0B8",
+  cadillac: "#9ADfff",
+};
+
+export function teamColor(constructorId: string): string {
+  return TEAM_COLORS[constructorId] ?? "#A1A1AA";
+}
+
 /** 返回本地赛车图路径；非 2025/2026 或未知车队时返回 null */
 export function carImageUrl(
   constructorId: string,

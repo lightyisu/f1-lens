@@ -231,7 +231,7 @@ export default function ResultsTabs({ results, qualifying }: Props) {
   const [tab, setTab] = useState<"race" | "quali">("race");
 
   return (
-    <div className="panel rounded-3xl p-4 sm:p-6 bg-white">
+    <div className="soft-card rounded-[1.75rem] bg-white p-4 sm:p-6">
       <div className="flex gap-1 mb-5 p-1 rounded-xl bg-card w-fit">
         {(
           [

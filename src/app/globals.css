@@ -40,13 +40,9 @@
 }
 
 body {
-  background: var(--background);
+  background: #eef2f6;
   color: var(--foreground);
   font-family: var(--font-body), system-ui, sans-serif;
-  background-image:
-    radial-gradient(ellipse 70% 45% at 0% 0%, rgba(225, 6, 0, 0.05), transparent 50%),
-    linear-gradient(180deg, #ffffff 0%, #f7f7f8 100%);
-  background-attachment: fixed;
 }
 
 ::selection {
@@ -63,12 +59,26 @@ body {
 }
 
 .panel {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border: 1px solid transparent;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.soft-card {
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .animate-fade-up {
   animation: fade-up 0.4s ease-out both;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .animate-fade-up-delay {
@@ -116,6 +126,39 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .countdown-tick-digit.is-ticking {
+    animation: none;
+  }
+}
+
+/* 悬停卡片时赛车向右冲出卡片，再从左侧驶回原位（绕场一圈） */
+@keyframes car-drive-by {
+  0% {
+    transform: translateX(0);
+    /* 起步加速冲出右边界 */
+    animation-timing-function: ease-in;
+  }
+  34% {
+    transform: translateX(115%);
+  }
+  40% {
+    transform: translateX(115%);
+  }
+  40.01% {
+    /* 瞬移到左边界外，随后减速滑回原位 */
+    transform: translateX(-170%);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.group:hover .car-drive {
+  animation: car-drive-by 1.15s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .car-drive {
     animation: none;
   }
 }
